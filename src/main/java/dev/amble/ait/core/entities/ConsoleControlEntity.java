@@ -503,7 +503,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                     TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength(tardis));
         }
 
-        Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
+        Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick, this);
 
         if (result == Control.Result.SEQUENCE) {
             if (random.nextBetween(0, 8) == 5) {

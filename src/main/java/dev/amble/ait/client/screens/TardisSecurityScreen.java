@@ -1,9 +1,15 @@
 package dev.amble.ait.client.screens;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.tardis.handler.LandingPadHandler;
 import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
@@ -27,12 +33,26 @@ public class TardisSecurityScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/security_menu.png");
 
-    int bgHeight = 138;
-    int bgWidth = 216;
+    private static final int PANEL_WIDTH = 216;
+    private static final int PANEL_HEIGHT = 138;
+    private static final int BORDER = 9;
+
+    private static final int PADDING = 14;
+    private static final int ROW_START = 14;
+    private static final int ROW_SPACING = 14;
+    private static final int VALUE_COLOR = 0xffA500;
+    private static final int INFO_COLOR = 0xadcaf7;
+
+    int bgHeight = 180;
+    int bgWidth = 256;
     int left, top;
     int choicesCount = 0;
     private final Screen parent;
+    private final List<Row> rows = new ArrayList<>();
     private TextFieldWidget landingCodeInput;
+
+    private record Row(Text label, int y, Supplier<Text> value) {
+    }
 
     public TardisSecurityScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen.ait.security.title"), tardis, console);
@@ -46,7 +66,7 @@ public class TardisSecurityScreen extends ConsoleScreen {
 
     @Override
     protected void init() {
-        this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
+        this.top = (this.height - this.bgHeight) / 2;
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
 
@@ -60,18 +80,29 @@ public class TardisSecurityScreen extends ConsoleScreen {
 
     private void createButtons() {
         choicesCount = 0;
+        this.rows.clear();
 
         createTextButton(Text.translatable("screen.ait.interiorsettings.back"),
-                (button -> backToExteriorChangeScreen()));
-        createTextButton(Text.translatable("screen.ait.security.leave_behind"), (button -> toggleLeaveBehind()));
-        createTextButton(Text.translatable("screen.ait.security.hostile_alarms"), (button -> toggleHostileAlarms()));
-        createTextButton(Text.translatable("screen.ait.security.minimum_loyalty"), (button -> changeMinimumLoyalty()));
-        createTextButton(Text.translatable("screen.ait.security.receive_distress_calls"), (button -> receiveDistressCalls()));
+                (button -> backToExteriorChangeScreen()), null);
+        createTextButton(Text.translatable("screen.ait.security.leave_behind"), (button -> toggleLeaveBehind()),
+                () -> onOff(this.tardis().travel().leaveBehind().get()));
+        createTextButton(Text.translatable("screen.ait.security.hostile_alarms"), (button -> toggleHostileAlarms()),
+                () -> onOff(this.tardis().alarm().hostilePresence().get()));
+        createTextButton(Text.translatable("screen.ait.security.minimum_loyalty"), (button -> changeMinimumLoyalty()),
+                () -> getMinimumLoyalty(this.tardis()).text());
+        createTextButton(Text.translatable("screen.ait.security.receive_distress_calls"), (button -> receiveDistressCalls()),
+                () -> onOff(this.tardis().stats().receiveCalls().get()));
 
-        this.landingCodeInput = new TextFieldWidget(this.textRenderer, (int) (left + (bgWidth * 0.06f)), this.top + 85, 120, this.textRenderer.fontHeight + 4,
+        if (DependencyChecker.hasVoiceChat())
+            createTextButton(Text.translatable("screen.ait.security.call_tracing"), (button -> toggleCallTracing()),
+                    () -> onOff(CommsHandler.of(this.tardis()).callTracing().get()));
+
+        int codeY = this.rowY(choicesCount) + 6;
+
+        this.landingCodeInput = new TextFieldWidget(this.textRenderer, left + PADDING, codeY, 160, this.textRenderer.fontHeight + 4,
                 Text.translatable("message.ait.landing_code"));
-        this.addButton(new PressableTextWidget((width / 2 + 40), (height / 2 + 18),
-                this.textRenderer.getWidth("✓"), 20, Text.literal("✓").formatted(Formatting.BOLD), button -> {
+        this.addButton(new PressableTextWidget(left + PADDING + 166, codeY,
+                this.textRenderer.getWidth("✓"), this.textRenderer.fontHeight + 4, Text.literal("✓").formatted(Formatting.BOLD), button -> {
             updateLandingCode();
         }, this.textRenderer));
 
@@ -87,10 +118,26 @@ public class TardisSecurityScreen extends ConsoleScreen {
         this.addSelectableChild(this.landingCodeInput);
     }
 
+    private int rowY(int index) {
+        return this.top + ROW_START + ROW_SPACING * index;
+    }
+
+    private static Text onOff(boolean value) {
+        return Text.translatable(value ? "screen.ait.monitor.on" : "screen.ait.monitor.off");
+    }
+
     private void receiveDistressCalls() {
         boolean bool = !this.tardis().stats().receiveCalls().get();
         this.tardis().stats().receiveCalls().set(bool);
         SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), StatsHandler.SHOULD_RECEIVE_CALLS);
+    }
+
+    private void toggleCallTracing() {
+        CommsHandler comms = CommsHandler.of(this.tardis());
+        boolean bool = !comms.callTracing().get();
+
+        comms.callTracing().set(bool);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), CommsHandler.CALL_TRACING);
     }
 
     private void toggleLeaveBehind() {
@@ -126,11 +173,14 @@ public class TardisSecurityScreen extends ConsoleScreen {
         button.active = true; // this whole method is unnecessary bc it defaults to true ( ?? )
     }
 
-    // this might be useful, so remember this exists and use it later on
-    private void createTextButton(Text text, ButtonWidget.PressAction onPress) {
-        this.addButton(new PressableTextWidget((int) (left + (bgWidth * 0.06f)),
-                (int) (top + (bgHeight * (0.1f * (choicesCount + 1)))), this.textRenderer.getWidth(text), 10, text,
+    private void createTextButton(Text text, ButtonWidget.PressAction onPress, Supplier<Text> value) {
+        int y = this.rowY(choicesCount);
+
+        this.addButton(new PressableTextWidget(left + PADDING, y, this.textRenderer.getWidth(text), 10, text,
                 onPress, this.textRenderer));
+
+        if (value != null)
+            this.rows.add(new Row(text, y, value));
 
         choicesCount++;
     }
@@ -143,42 +193,17 @@ public class TardisSecurityScreen extends ConsoleScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.drawBackground(context);
 
-        ClientTardis tardis = this.tardis();
+        for (Row row : this.rows) {
+            int x = left + PADDING + this.textRenderer.getWidth(row.label());
+            context.drawText(this.textRenderer, Text.empty().append(": ").append(row.value().get()), x, row.y(), VALUE_COLOR, false);
+        }
 
-        Text onText = Text.translatable("screen.ait.monitor.on");
-        Text offText = Text.translatable("screen.ait.monitor.off");
+        int infoY = top + bgHeight - BORDER - 26;
 
-
-        context.drawText(this.textRenderer,
-                Text.empty().append(": ").append(tardis.travel().leaveBehind().get() ? onText : offText),
-                (int) (left + (bgWidth * 0.46f)), (int) (top + (bgHeight * (0.1f * 2))), 0xffA500, false);
-
-
-        context.drawText(this.textRenderer,
-                Text.empty().append(": ").append(tardis.alarm().hostilePresence().get() ? onText : offText),
-                (int) (left + (bgWidth * 0.48f)), (int) (top + (bgHeight * (0.1f * 3))), 0xffA500, false);
-
-
-        context.drawText(this.textRenderer,
-                Text.literal(": ").append(getMinimumLoyalty(tardis).text()),
-                (int) (left + (bgWidth * 0.51f)), (int) (top + (bgHeight * (0.1f * 4))), 0xffA500, false);
-
-
-        context.drawText(this.textRenderer,
-                Text.translatable("message.ait.date_created"),
-                (int) (left + (bgWidth * 0.06f)),
-                (int) (top + (bgHeight * (0.1f * 7.5))), 0xadcaf7, false);
-
-
-        context.drawText(this.textRenderer,
-                Text.literal(tardis.stats().getCreationString()),
-                (int) (left + (bgWidth * 0.06f)),
-                (int) (top + (bgHeight * (0.1f * 8.5))), 0xadcaf7, false);
-
-
-        context.drawText(this.textRenderer,
-                Text.empty().append(": ").append(this.tardis().<StatsHandler>handler(TardisComponent.Id.STATS).receiveCalls().get() ? onText : offText),
-                (int) (left + (bgWidth * 0.7f)), (int) (top + (bgHeight * (0.1f * 5))), 0xffA500, false);
+        context.drawText(this.textRenderer, Text.translatable("message.ait.date_created"),
+                left + PADDING, infoY, INFO_COLOR, false);
+        context.drawText(this.textRenderer, Text.literal(this.tardis().stats().getCreationString()),
+                left + PADDING, infoY + 11, INFO_COLOR, false);
 
         this.landingCodeInput.render(context, mouseX, mouseY, delta);
         this.landingCodeInput.setEditableColor(this.landingCodeInput.isSelected() || !this.landingCodeInput.getText().isBlank() ? 0xffffff: 0x545454);
@@ -186,6 +211,28 @@ public class TardisSecurityScreen extends ConsoleScreen {
     }
 
     private void drawBackground(DrawContext context) {
-        context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+        int innerSourceWidth = PANEL_WIDTH - BORDER * 2;
+        int innerSourceHeight = PANEL_HEIGHT - BORDER * 2;
+        int innerWidth = bgWidth - BORDER * 2;
+        int innerHeight = bgHeight - BORDER * 2;
+        int right = left + bgWidth - BORDER;
+        int bottom = top + bgHeight - BORDER;
+
+        context.drawTexture(TEXTURE, left, top, 0, 0, BORDER, BORDER, 256, 256);
+        context.drawTexture(TEXTURE, right, top, PANEL_WIDTH - BORDER, 0, BORDER, BORDER, 256, 256);
+        context.drawTexture(TEXTURE, left, bottom, 0, PANEL_HEIGHT - BORDER, BORDER, BORDER, 256, 256);
+        context.drawTexture(TEXTURE, right, bottom, PANEL_WIDTH - BORDER, PANEL_HEIGHT - BORDER, BORDER, BORDER, 256, 256);
+
+        context.drawTexture(TEXTURE, left + BORDER, top, innerWidth, BORDER, BORDER, 0, innerSourceWidth, BORDER, 256, 256);
+        context.drawTexture(TEXTURE, left + BORDER, bottom, innerWidth, BORDER, BORDER, PANEL_HEIGHT - BORDER, innerSourceWidth, BORDER, 256, 256);
+        context.drawTexture(TEXTURE, left, top + BORDER, BORDER, innerHeight, 0, BORDER, BORDER, innerSourceHeight, 256, 256);
+        context.drawTexture(TEXTURE, right, top + BORDER, BORDER, innerHeight, PANEL_WIDTH - BORDER, BORDER, BORDER, innerSourceHeight, 256, 256);
+
+        for (int offset = 0; offset < innerHeight; offset += innerSourceHeight) {
+            int height = Math.min(innerSourceHeight, innerHeight - offset);
+
+            context.drawTexture(TEXTURE, left + BORDER, top + BORDER + offset, innerWidth, height,
+                    BORDER, BORDER, innerSourceWidth, height, 256, 256);
+        }
     }
 }

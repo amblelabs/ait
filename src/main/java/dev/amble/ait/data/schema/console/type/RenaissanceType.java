@@ -122,6 +122,8 @@ public class RenaissanceType extends ConsoleTypeSchema {
 
             new ControlTypes(new FoodCreationControl(), EntityDimensions.changing(0.4124999f, 0.23750003f),
                     new Vector3f(-0.012500000186264515f, 0.5375007577240467f, 0.773436738178134f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.100000024f, 0.125f),
+                    new Vector3f(-1.3375007826834917f, 0.550001141615212f, -0.26406251545995474f)),
 
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.17500001f, 0.099999994f),
                     new Vector3f(-1.1734386486932635f, 0.5000001899898052f, 0.6757816290482879f)),};

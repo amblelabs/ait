@@ -65,6 +65,7 @@ public class AITItems extends ItemContainer {
     public static final Item RIFT_SCANNER = new RiftScannerItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
     public static final Item REPAIR_TOOL = new RepairToolItem(new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(16));
+    public static final Item PHONE = new PhoneItem(new AItemSettings().maxCount(1));
     @NoEnglish
     public static final Item HAMMER = new HammerItem(3, -2.4F,
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(600));

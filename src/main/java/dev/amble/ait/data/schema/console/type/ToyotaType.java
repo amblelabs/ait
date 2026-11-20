@@ -96,7 +96,10 @@ public class ToyotaType extends ConsoleTypeSchema {
             new ControlTypes(new SonicPortControl(), EntityDimensions.changing(0.125f, 0.08749999f),
                     new Vector3f(-1.0605468843132257f, 0.7624998083338141f, 0.21328125707805157f)),
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.125f, 0.099999994f),
-                    new Vector3f(-0.21093748696148396f, 0.737499762326479f, -0.8250000029802322f)),};
+                    new Vector3f(-0.21093748696148396f, 0.737499762326479f, -0.8250000029802322f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.20000002f, 0.099999994f),
+                    new Vector3f(-1.110937513411045f, 0.5874999947845936f, 0.8499992620199919f)),
+    };
 
     public ToyotaType() {
         super(REFERENCE, "toyota");

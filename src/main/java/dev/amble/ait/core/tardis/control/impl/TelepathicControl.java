@@ -2,9 +2,11 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.advancement.TardisCriterions;
@@ -12,11 +14,16 @@ import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.core.item.HypercubeItem;
 import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.comms.CommsLine;
+import dev.amble.ait.core.tardis.comms.CommsMessages;
+import dev.amble.ait.core.tardis.comms.TardisComms;
+import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.SiegeHandler;
@@ -48,7 +55,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
@@ -56,6 +65,9 @@ import net.minecraft.world.gen.structure.StructureKeys;
 public class TelepathicControl extends Control {
 
     public static final int RADIUS = 256;
+
+    private static final int CALL_ROUTE_MIN = 4;
+    private static final int CALL_ROUTE_MAX = 6;
 
     public TelepathicControl() {
         super(AITMod.id("telepathic_circuit"));
@@ -70,6 +82,9 @@ public class TelepathicControl extends Control {
 
         ItemStack held = player.getMainHandStack();
         Item type = held.getItem();
+
+        if (type instanceof PhoneItem)
+            return this.routeToCall(tardis, player, held);
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);
@@ -353,4 +368,43 @@ public class TelepathicControl extends Control {
         });
     }
 
+
+    private Result routeToCall(Tardis tardis, ServerPlayerEntity player, ItemStack held) {
+        UUID session = PhoneItem.session(held);
+
+        if (session == null || !PhoneItem.isFor(held, tardis.getUuid()) || !TardisPhones.isActive(session, player.getUuid()))
+            return Result.FAILURE;
+
+        UUID partnerId = TardisComms.connectedPartner(tardis.getUuid());
+        CommsLine partner = partnerId == null ? null : CommsLine.resolve(player.getServer(), partnerId);
+
+        CachedDirectedGlobalPos target = null;
+
+        if (partner instanceof CommsLine.Tardis line)
+            target = line.tardis().travel().position();
+        else if (partner instanceof CommsLine.Phone line)
+            target = CachedDirectedGlobalPos.create(line.world(), line.entry().pos(), (byte) 0);
+
+        if (partner instanceof CommsLine.Tardis line && !CommsHandler.of(line.tardis()).callTracing().get()) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.untraceable").formatted(Formatting.RED));
+            return Result.FAILURE;
+        }
+
+        if (target == null || target.getWorld() == null) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_trace").formatted(Formatting.GRAY));
+            return Result.FAILURE;
+        }
+
+        Random random = player.getWorld().getRandom();
+        double angle = random.nextDouble() * Math.PI * 2;
+        int distance = CALL_ROUTE_MIN + random.nextInt(CALL_ROUTE_MAX - CALL_ROUTE_MIN + 1);
+
+        tardis.travel().destination(target.offset((int) Math.round(Math.cos(angle) * distance), 0,
+                (int) Math.round(Math.sin(angle) * distance)), true);
+
+        tardis.getDesktop().playSoundAtEveryConsole(AITSounds.WAYPOINT_ACTIVATE);
+        CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.routing", partner.name()).formatted(Formatting.GOLD));
+
+        return Result.SUCCESS;
+    }
 }

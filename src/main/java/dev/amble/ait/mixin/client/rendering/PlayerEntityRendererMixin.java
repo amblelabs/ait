@@ -3,6 +3,7 @@ package dev.amble.ait.mixin.client.rendering;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.client.renderers.PhoneCableRenderer;
 import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.item.PsychpaperItem;
@@ -85,6 +86,13 @@ public abstract class PlayerEntityRendererMixin
         if (abstractClientPlayerEntity.getVehicle() instanceof FlightTardisEntity) {
             ci.cancel();
         }
+    }
+
+    @Inject(method = "render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
+    private void ait$renderPhoneCable(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrices,
+                                       VertexConsumerProvider consumers, int light, CallbackInfo ci) {
+        PhoneCableRenderer.renderPlayer(player, tickDelta, matrices, consumers,
+                player.getLerpedPos(tickDelta).add(this.getPositionOffset(player, tickDelta)));
     }
 
     @Inject(method = "renderLabelIfPresent(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/text/Text;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"), cancellable = true)

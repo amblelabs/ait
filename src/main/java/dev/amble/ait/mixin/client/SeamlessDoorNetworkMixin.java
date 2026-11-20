@@ -2,6 +2,7 @@ package dev.amble.ait.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.amble.ait.client.util.SeamlessDoorTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,8 +12,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-
-import dev.amble.ait.client.util.SeamlessDoorTransition;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class SeamlessDoorNetworkMixin {

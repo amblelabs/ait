@@ -4,6 +4,7 @@ import dev.amble.ait.api.AITModInitializer;
 import dev.amble.ait.compat.gravity.GravityHandler;
 import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.compat.portal.PortalsHandler;
+import dev.amble.ait.compat.svc.CommsHandler;
 import net.fabricmc.api.ClientModInitializer;
 
 public class Compat implements AITModInitializer, ClientModInitializer {
@@ -15,6 +16,9 @@ public class Compat implements AITModInitializer, ClientModInitializer {
 
         if (DependencyChecker.hasPortals())
             PortalsHandler.init();
+
+        if (DependencyChecker.hasVoiceChat())
+            CommsHandler.init();
     }
 
     @Override
@@ -27,5 +31,8 @@ public class Compat implements AITModInitializer, ClientModInitializer {
 
         if (DependencyChecker.hasIris())
             IrisCompat.clientInit();
+
+        if (DependencyChecker.hasVoiceChat())
+            CommsHandler.clientInit();
     }
 }

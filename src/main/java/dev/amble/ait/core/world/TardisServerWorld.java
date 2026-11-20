@@ -1,6 +1,8 @@
 package dev.amble.ait.core.world;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
@@ -40,6 +42,8 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     private ServerTardis tardis;
     private RegistryEntry<Biome> cachedBiome;
+    private final Set<BlockPos> phoneExtensions = new HashSet<>();
+    private Set<BlockPos> ringingExtensions = Set.of();
 
     public TardisServerWorld(WorldBlueprint blueprint, MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, List<Spawner> spawners, @Nullable RandomSequencesState randomSequencesState, boolean created) {
         super(blueprint, server, workerExecutor, session, properties, worldKey, dimensionOptions, worldGenerationProgressListener, spawners, randomSequencesState, created);
@@ -73,6 +77,18 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
         this.cachedBiome = super.getBiome(pos);
         return cachedBiome;
+    }
+
+    public Set<BlockPos> phoneExtensions() {
+        return this.phoneExtensions;
+    }
+
+    public Set<BlockPos> ringingExtensions() {
+        return this.ringingExtensions;
+    }
+
+    public void setRingingExtensions(Set<BlockPos> ringing) {
+        this.ringingExtensions = Set.copyOf(ringing);
     }
 
     public void setTardis(ServerTardis tardis) {

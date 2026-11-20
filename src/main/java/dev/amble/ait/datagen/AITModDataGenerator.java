@@ -467,6 +467,20 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                         .input(Items.MILK_BUCKET).criterion(hasItem(Items.MILK_BUCKET), conditionsFromItem(Items.MILK_BUCKET)));*/
             }
 
+            provider.addShapedRecipe(
+                    ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ROTARY_PHONE, 1)
+                            .pattern("CZC")
+                            .pattern("RBR")
+                            .pattern("CCC")
+                            .input('C', Items.COPPER_INGOT)
+                            .input('Z', AITItems.CHARGED_ZEITON_CRYSTAL)
+                            .input('R', Items.REDSTONE)
+                            .input('B', Items.BELL)
+                            .criterion(hasItem(AITItems.CHARGED_ZEITON_CRYSTAL), conditionsFromItem(AITItems.CHARGED_ZEITON_CRYSTAL))
+                            .criterion(hasItem(Items.COPPER_INGOT), conditionsFromItem(Items.COPPER_INGOT))
+                            .criterion(hasItem(Items.REDSTONE), conditionsFromItem(Items.REDSTONE))
+                            .criterion(hasItem(Items.BELL), conditionsFromItem(Items.BELL)));
+
             if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
                 provider.addShapedRecipe(
                         ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.SNOW_GLOBE, 1)
@@ -988,6 +1002,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
+        provider.addTranslation("yacl3.config.ait:client.voiceFilters", "Voice Filters for TARDIS Calls and Broadcasts");
         provider.addTranslation("yacl3.config.ait:client.rwfHudScale", "Real World Flight HUD Scale");
         provider.addTranslation("yacl3.config.ait:client.rwfFovEffect", "Real World Flight FOV Effect");
         provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt", "Real World Flight Camera Tilt");
@@ -1212,6 +1227,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Blocks
         provider.addTranslation(AITBlocks.LANDING_PAD, "Landing Marker");
+        provider.addTranslation(AITBlocks.ROTARY_PHONE, "Rotary Phone");
         provider.addTranslation(AITBlocks.DETECTOR_BLOCK, "Interior Detector Block");
         provider.addTranslation(AITBlocks.EXTERIOR_BLOCK, "Exterior");
         provider.addTranslation(AITBlocks.CORAL_PLANT, "Coral Growth");
@@ -1356,6 +1372,74 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
         provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
+        provider.addTranslation("tardis.message.comms.broadcast_on", "Broadcasting to the interior");
+        provider.addTranslation("tardis.message.comms.broadcast_off", "Stopped broadcasting");
+        provider.addTranslation("tardis.message.comms.unavailable", "That TARDIS isn't accepting calls.");
+        provider.addTranslation("tardis.message.comms.busy", "Line busy.");
+        provider.addTranslation("tardis.message.comms.calling", "Calling %s...");
+        provider.addTranslation("tardis.message.comms.connected", "Call connected");
+        provider.addTranslation("tardis.message.comms.missed", "Missed call from %s");
+        provider.addTranslation("tardis.message.comms.leave_message", "No answer. Leave a message after the tone.");
+        provider.addTranslation("tardis.message.comms.message_sent", "Message saved.");
+        provider.addTranslation("tardis.message.comms.new_message", "New message from %s");
+        provider.addTranslation("tardis.message.comms.ended", "Call ended");
+        provider.addTranslation("tardis.message.comms.handset_taken", "%s has the handset.");
+        provider.addTranslation("tardis.message.comms.no_room", "No room for the handset.");
+        provider.addTranslation("tardis.message.comms.no_call", "No call to answer.");
+        provider.addTranslation("tardis.message.comms.routing", "Tracing the call... routing to %s");
+        provider.addTranslation("tardis.message.comms.no_trace", "No active call to trace.");
+        provider.addTranslation("tardis.message.comms.untraceable", "That TARDIS has call tracing disabled.");
+        provider.addTranslation("tardis.message.comms.no_answer", "No answer.");
+        provider.addTranslation("tardis.message.comms.handed", "Handed the phone to %s");
+        provider.addTranslation("tardis.message.comms.handed_you", "%s handed you the phone");
+        provider.addTranslation("screen.ait.comms.short.keypad", "Keypad");
+        provider.addTranslation("screen.ait.comms.short.keypad_close", "Hide Pad");
+        provider.addTranslation("screen.ait.comms.keypad", "Dial a number directly");
+        provider.addTranslation("screen.ait.comms.backspace", "Backspace (Shift to clear)");
+        provider.addTranslation("tardis.message.phone.copied", "This phone's number is %s (copied to clipboard)");
+        provider.addTranslation("tardis.message.phone.no_voice_chat", "The line is dead. (Requires Simple Voice Chat)");
+        provider.addTranslation("tardis.message.phone.cooldown", "The line is busy. Try again in %ss.");
+        provider.addTranslation("tardis.message.phone.no_such_number", "The number %s could not be reached.");
+        provider.addTranslation("screen.ait.phone.title", "Rotary Phone");
+        provider.addTranslation("screen.ait.phone.own_number", "No. %s");
+        provider.addTranslation("screen.ait.phone.dial", "Dial");
+        provider.addTranslation("screen.ait.phone.wait", "Wait %ss");
+        provider.addTranslation("screen.ait.phone.enter_number", "Number...");
+        provider.addTranslation("screen.ait.phone.recent", "Recent");
+        provider.addTranslation("screen.ait.phone.no_recent", "No calls yet");
+        provider.addTranslation("screen.ait.phone.outgoing", "Outgoing call");
+        provider.addTranslation("screen.ait.phone.incoming", "Incoming call");
+        provider.addTranslation("screen.ait.comms.own_number", "No. %s");
+        provider.addTranslation("screen.ait.comms.copied", "Copied!");
+        provider.addTranslation("voicechat.ait.category.tardis_broadcast", "TARDIS Broadcast");
+        provider.addTranslation("voicechat.ait.category.tardis_broadcast.description", "The volume of TARDIS broadcasts.");
+        provider.addTranslation("voicechat.ait.category.tardis_comms", "TARDIS Comms");
+        provider.addTranslation("voicechat.ait.category.tardis_comms.description", "The volume of TARDIS communications.");
+        provider.addTranslation("screen.ait.comms.title", "TARDIS Comms");
+        provider.addTranslation("screen.ait.comms.broadcast", "Broadcast");
+        provider.addTranslation("screen.ait.comms.mode.speaker", "Mode: Speaker");
+        provider.addTranslation("screen.ait.comms.mode.handset", "Mode: Handset");
+        provider.addTranslation("screen.ait.comms.answer", "Answer");
+        provider.addTranslation("screen.ait.comms.decline", "Decline");
+        provider.addTranslation("screen.ait.comms.hang_up", "Hang up");
+        provider.addTranslation("screen.ait.comms.finish_message", "Finish message");
+        provider.addTranslation("screen.ait.comms.message", "%s (%ss)");
+        provider.addTranslation("screen.ait.comms.contacts", "Call a TARDIS");
+        provider.addTranslation("screen.ait.comms.messages", "Messages");
+        provider.addTranslation("screen.ait.comms.no_contacts", "No TARDISes accepting calls");
+        provider.addTranslation("screen.ait.comms.no_messages", "No messages");
+        provider.addTranslation("screen.ait.comms.loading", "Connecting...");
+        provider.addTranslation("screen.ait.comms.status.idle", "No active call");
+        provider.addTranslation("screen.ait.comms.status.outgoing", "Ringing %s...");
+        provider.addTranslation("screen.ait.comms.status.incoming", "Incoming call from %s");
+        provider.addTranslation("screen.ait.comms.status.connected", "Connected to %s");
+        provider.addTranslation("screen.ait.comms.status.recording", "Recording a message for %s");
+        provider.addTranslation("screen.ait.comms.tab.calls", "Contacts");
+        provider.addTranslation("screen.ait.comms.tab.messages", "Messages");
+        provider.addTranslation("screen.ait.comms.short.speaker", "Speaker");
+        provider.addTranslation("screen.ait.comms.short.handset", "Handset");
+        provider.addTranslation("screen.ait.comms.short.broadcast", "Broadcast");
+        provider.addTranslation("screen.ait.comms.message.tooltip", "Click to play, Shift-click to delete");
         provider.addTranslation("tardis.message.interiorchange.cancelled", "%s's interior reconfiguration was cancelled");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABANDON SHIP");
@@ -1741,7 +1825,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.leave_behind", "> Leave Behind");
         provider.addTranslation("screen.ait.security.hostile_alarms", "> Hostile Alarms");
         provider.addTranslation("screen.ait.security.minimum_loyalty", "> Isomorphic LVL");
-        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Receive Distress Calls");
+        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Receive Communications");
+        provider.addTranslation("screen.ait.security.call_tracing", "> Call Tracing");
 
         // Interior changing
         provider.addTranslation("tardis.message.interiorchange.not_enough_fuel",
@@ -2796,7 +2881,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.hostile_alarms", "> Alarmas hostiles");
         provider.addTranslation("screen.ait.security.leave_behind", "> Dejar atrás");
         provider.addTranslation("screen.ait.security.minimum_loyalty", "> Nivel isomórfico");
-        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Llamadas de socorro");
+        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Recibir comunicaciones");
         provider.addTranslation("screen.ait.security.title", "Seguridad");
         provider.addTranslation("screen.ait.sonic.button", "> Ajustes sónicos");
         provider.addTranslation("screen.ait.sonic_casing", "Carcasa sónica");

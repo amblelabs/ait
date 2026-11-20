@@ -76,6 +76,10 @@ public class AITModelProvider extends AmbleModelProvider {
             module.getBlockRegistry().ifPresent(this::withBlocks);
         });
 
+        Identifier rotaryPhone = Models.PARTICLE.upload(AITBlocks.ROTARY_PHONE,
+                TextureMap.particle(new Identifier("minecraft", "block/black_terracotta")), generator.modelCollector);
+        generator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(AITBlocks.ROTARY_PHONE, rotaryPhone));
+
         BlockStateModelGenerator.BlockTexturePool tardis_coral_pool = generator.registerCubeAllModelTexturePool(AITBlocks.TARDIS_CORAL_BLOCK);
         tardis_coral_pool.stairs(AITBlocks.TARDIS_CORAL_STAIRS);
         tardis_coral_pool.slab(AITBlocks.TARDIS_CORAL_SLAB);
@@ -93,6 +97,8 @@ public class AITModelProvider extends AmbleModelProvider {
             module.getBlockRegistry().ifPresent(this::withBlocks);
             module.getDataGenerator().ifPresent(data -> data.generateItemModels(this, generator));
         });
+
+        generator.register(AITItems.PHONE, Models.GENERATED);
 
         this.withItems(AITItems.class);
         this.withBlocks(AITBlocks.class);

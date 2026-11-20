@@ -1,5 +1,11 @@
 package dev.amble.ait.client.sounds.flight;
 
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.sounds.flight.FlightSound;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.sound.SoundCategory;
@@ -8,12 +14,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.sounds.flight.FlightSound;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 public final class FlightTardisSounds {
 

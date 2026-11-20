@@ -1,6 +1,9 @@
 package dev.amble.ait.compat.portal;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.AITModClient;
@@ -28,6 +31,27 @@ public class TardisPortal extends Portal {
 
     public TardisPortal(EntityType<TardisPortal> type, World world) {
         super(type, world);
+    }
+
+    public static final Set<TardisPortal> OPEN = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.getWorld().isClient())
+            return;
+
+        if (!this.isRemoved() && super.isVisible() && this.isTeleportable() && this.isPortalValid())
+            OPEN.add(this);
+        else
+            OPEN.remove(this);
+    }
+
+    @Override
+    public void ip_onRemoved(RemovalReason reason) {
+        super.ip_onRemoved(reason);
+        OPEN.remove(this);
     }
 
     // ip calls this server side too (isInteractableBy) and there's no AITModClient on a dedi

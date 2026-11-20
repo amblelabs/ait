@@ -33,6 +33,7 @@ import dev.amble.ait.client.renderers.coral.CoralRenderer;
 import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
 import dev.amble.ait.client.renderers.decoration.PottedSonicScrewdriverRenderer;
+import dev.amble.ait.client.renderers.decoration.RotaryPhoneRenderer;
 import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
@@ -42,6 +43,7 @@ import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.screens.*;
+import dev.amble.ait.client.screens.svc.CommScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -84,6 +86,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
@@ -341,6 +344,7 @@ public class AITModClient implements ClientModInitializer {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis, console);
+            case 4 -> new CommScreen(tardis);
             default -> null;
         };
     }
@@ -471,6 +475,8 @@ public class AITModClient implements ClientModInitializer {
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.CABLE_BLOCK_ENTITY_TYPE, CableEmissionRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.ROTARY_PHONE_BLOCK_ENTITY_TYPE, RotaryPhoneRenderer::new);
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.ROTARY_PHONE, RotaryPhoneRenderer::renderItem);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, UntemperedSchismRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import dev.amble.ait.AITMod;
 import dev.amble.verification.BetaVerification;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 

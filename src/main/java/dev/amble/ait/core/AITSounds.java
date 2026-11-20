@@ -73,7 +73,7 @@ public class AITSounds {
     public static final SoundEvent LANDING_WESTMINSTER = register("landing_notifications/westminster");
     public static final SoundEvent SHIELD_AMBIANCE = register("tardis/shield_ambiance");
     public static final SoundEvent CRUMPLE = register("tardis/crumple");
-
+    public static final SoundEvent TELEPHONE = register("tardis/telephone");
 
     public static final SoundEvent SIEGE_ENABLE = register("tardis/siege_enable");
     public static final SoundEvent SIEGE_DISABLE = register("tardis/siege_disable");

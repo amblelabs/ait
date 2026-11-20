@@ -84,6 +84,8 @@ public class CoralType extends ConsoleTypeSchema {
                     new Vector3f(-1.0578126963227987f, 0.39999999664723873f, -0.22421894501894712f)),
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.099999994f, 0.21250002f),
                     new Vector3f(-1.2734375027939677f, 0.1874997541308403f, -0.5624999990686774f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.16250001f, 0.16250001f),
+                    new Vector3f(-0.7109374916180968f, 0.5375001914799213f, -0.12499999348074198f)),
             new ControlTypes(new HammerHangerControl(), EntityDimensions.changing(0.15f, 0.42499986f),
                     new Vector3f(1.2765621216967702f, -0.05000000726431608f, -0.5242195194587111f)),};
 

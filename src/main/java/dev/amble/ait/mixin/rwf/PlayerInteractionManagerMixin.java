@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.rwf;
 
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,8 +19,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.entities.FlightTardisEntity;
 
 /**
  * Stops a player from breaking blocks or interacting with the world while riding a

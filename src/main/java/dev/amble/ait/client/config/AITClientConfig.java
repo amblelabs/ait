@@ -97,6 +97,10 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean voiceFilters = true;
+
+    @AutoGen(category = CATEGORY)
     @FloatSlider(min = 0.5f, max = 2.0f, step = 0.05f)
     @CustomDescription("yacl3.config.ait:client.rwfHudScale.desc")
     @SerialEntry public float rwfHudScale = 1.5f;

@@ -82,6 +82,8 @@ public class CopperType extends ConsoleTypeSchema {
                     new Vector3f(-0.8484344435855746f, 0.4625001894310117f, 0.7390625085681677f)),
             new ControlTypes(new SecurityControl(), EntityDimensions.changing(0.099999994f, 0.18750001f),
                     new Vector3f(0.8171813935041428f, 0.7625001901760697f, -0.1843719482421875f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.26250002f, 0.17500001f),
+                    new Vector3f(0.4921806287020445f, 1.0750000001862645f, -0.2843719497323036f)),
 
             //CONSOLE UNDERSIDE CONTROLS
             new ControlTypes(new ThrottleControl(), EntityDimensions.changing(0.2375f, 0.23750003f),

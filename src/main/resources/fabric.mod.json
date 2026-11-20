@@ -84,6 +84,9 @@
 		],
 		"lambdynlights:initializer": [
 			"dev.amble.ait.compat.lambdynlights.LambDynLightsCompat"
+		],
+		"voicechat": [
+			"dev.amble.ait.compat.svc.AITVoiceChatPlugin"
 		]
 	},
 	"mixins": [
@@ -105,7 +108,8 @@
 		"k9-mod": "*",
 		"fabric-permissions-api": "*",
 		"immersiveportals": "~v3.3.9-mc1.20.1",
-		"lambdynlights": "*"
+		"lambdynlights": "*",
+		"voicechat_api": "*"
 	},
 	"custom": {
 		"modmenu": {
