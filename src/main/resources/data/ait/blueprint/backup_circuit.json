@@ -5,19 +5,9 @@
   },
   "inputs": [
     {
-      "item": "ait:charged_zeiton_crystal",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
       "item": "ait:hyperion_core_shaft",
       "maxCount": 3,
       "minCount": 2
-    },
-    {
-      "item": "ait:orthogonal_engine_filter",
-      "maxCount": 5,
-      "minCount": 4
     },
     {
       "item": "minecraft:iron_ingot",

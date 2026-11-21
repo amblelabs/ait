@@ -21,8 +21,13 @@
     },
     {
       "item": "ait:cable_block",
-      "maxCount": 11,
-      "minCount": 7
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:dirt",
+      "maxCount": 1,
+      "minCount": 1
     },
     {
       "item": "minecraft:iron_ingot",
