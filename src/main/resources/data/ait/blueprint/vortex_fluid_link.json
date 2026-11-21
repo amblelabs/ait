@@ -6,12 +6,12 @@
   "inputs": [
     {
       "item": "ait:cable_block",
-      "maxCount": 3,
+      "maxCount": 1,
       "minCount": 1
     },
     {
       "item": "minecraft:ender_pearl",
-      "maxCount": 2,
+      "maxCount": 1,
       "minCount": 1
     },
     {

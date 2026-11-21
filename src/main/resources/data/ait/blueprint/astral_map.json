@@ -5,7 +5,7 @@
   },
   "inputs": [
     {
-      "item": "quartz",
+      "item": "minecraft:quartz",
       "maxCount": 5,
       "minCount": 3
     },
@@ -15,34 +15,34 @@
       "minCount": 1
     },
     {
-      "item": "compass",
+      "item": "minecraft:compass",
       "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "map",
+      "item": "minecraft:map",
       "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "diamond",
+      "item": "minecraft:diamond",
       "maxCount": 4,
       "minCount": 2
     },
     {
-      "item": "iron_ingot",
+      "item": "minecraft:iron_ingot",
       "maxCount": 7,
       "minCount": 3
     },
     {
-      "item": "blaze_powder",
+      "item": "minecraft:blaze_powder",
       "maxCount": 5,
       "minCount": 3
     },
     {
-      "item": "minecraft:glass_pane",
-      "maxCount": 7,
-      "minCount": 7
+      "item": "minecraft:ender_eye",
+      "maxCount": 10,
+      "minCount": 10
     }
   ]
 }

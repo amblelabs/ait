@@ -25,6 +25,11 @@
       "minCount": 1
     },
     {
+      "item": "minecraft:copper_ingot",
+      "maxCount": 9,
+      "minCount": 6
+    },
+    {
       "item": "ait:vortex_fluid_link",
       "maxCount": 1,
       "minCount": 1

@@ -5,17 +5,17 @@
   },
   "inputs": [
     {
-      "item": "redstone",
+      "item": "minecraft:redstone",
       "maxCount": 2,
       "minCount": 2
     },
     {
-      "item": "stone_button",
+      "item": "minecraft:stone_button",
       "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "chest",
+      "item": "minecraft:chest",
       "maxCount": 1,
       "minCount": 1
     },
@@ -25,7 +25,7 @@
       "minCount": 2
     },
     {
-      "item": "light_gray_concrete",
+      "item": "minecraft:light_gray_concrete",
       "maxCount": 3,
       "minCount": 3
     }

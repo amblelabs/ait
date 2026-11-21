@@ -5,7 +5,7 @@
   },
   "inputs": [
     {
-      "item": "ait:zeiton_crystal",
+      "item": "ait:zeiton_shard",
       "maxCount": 1,
       "minCount": 1
     },
