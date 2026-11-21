@@ -20,7 +20,7 @@
       "minCount": 1
     },
     {
-      "item": "minecraft:redstone_dust",
+      "item": "minecraft:redstone",
       "maxCount": 4,
       "minCount": 2
     },
