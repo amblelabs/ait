@@ -270,3 +270,4 @@
 - fix: power off music is back! | by [@Loqor](https://github.com/Loqor) ([#2285](https://github.com/amblelabs/ait/pull/2285))
 - chore: rebalanced most blueprints | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2286](https://github.com/amblelabs/ait/pull/2286))
 - fix: cult structures filling in air | by [@JellyAurora06](https://github.com/JellyAurora06) ([#2287](https://github.com/amblelabs/ait/pull/2287))
+- fix: prying the tardis open no longer repairs the axe | by [@drtheodor](https://github.com/drtheodor) ([#2290](https://github.com/amblelabs/ait/pull/2290))
