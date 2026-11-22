@@ -67,12 +67,12 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             }
 
             // if holding an axe then break open the door RAHHH
-            if (stack.getItem() instanceof AxeItem axeItem && axeItem.getAttackDamage()>=8 && stack.getItem() != Items.STONE_AXE) {
+            if (stack.getItem() instanceof AxeItem axeItem && axeItem.getAttackDamage() >= 8 && stack.getItem() != Items.STONE_AXE) {
                 if (tardis.siege().isActive())
                     return DoorHandler.InteractionResult.CANCEL;
 
                 player.swingHand(Hand.MAIN_HAND);
-                stack.setDamage(stack.getDamage() + 1);
+                stack.setDamage(stack.getDamage() + 5);
 
                 if (pos != null)
                     world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS, 1f,
