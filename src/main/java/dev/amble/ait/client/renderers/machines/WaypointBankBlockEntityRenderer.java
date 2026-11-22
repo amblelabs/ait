@@ -40,16 +40,12 @@ public class WaypointBankBlockEntityRenderer<T extends WaypointBankBlockEntity> 
             return;
 
         Tardis tardis = entity.tardis().get();
-
-        if (!tardis.fuel().hasPower())
-            return;
-
         float facing = entity.getCachedState().get(WaypointBankBlock.FACING).asRotation();
 
         WaypointBankBlockEntity.WaypointData[] waypoints = entity.getWaypoints();
         int selectedIndex = entity.getSelected();
 
-        if (selectedIndex != -1)
+        if (tardis.fuel().hasPower() && selectedIndex != -1)
             renderMonitor(matrices, vertices, facing, waypoints, selectedIndex);
 
         BakedModel cartridgeModel = WaypointBankBlockEntityRenderer.cartridgeModel();
