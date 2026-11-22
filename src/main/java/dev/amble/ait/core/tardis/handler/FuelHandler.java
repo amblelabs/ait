@@ -20,6 +20,7 @@ import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
@@ -72,7 +73,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
                     return DoorHandler.InteractionResult.CANCEL;
 
                 player.swingHand(Hand.MAIN_HAND);
-                stack.setDamage(stack.getDamage() + 5);
+                stack.damage(5, player, p -> p.sendToolBreakStatus(Hand.MAIN_HAND));
 
                 if (pos != null)
                     world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS, 1f,
