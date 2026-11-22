@@ -72,7 +72,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
                     return DoorHandler.InteractionResult.CANCEL;
 
                 player.swingHand(Hand.MAIN_HAND);
-                stack.setDamage(stack.getDamage() - 1);
+                stack.setDamage(stack.getDamage() + 1);
 
                 if (pos != null)
                     world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS, 1f,
