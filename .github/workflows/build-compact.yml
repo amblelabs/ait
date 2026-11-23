@@ -11,6 +11,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         fetch-depth: 0
+    
     - name: Set up JDK 25
       uses: actions/setup-java@v6
       with:
@@ -37,13 +38,12 @@ jobs:
 
     # PackSquash requires a pack.mcmeta at the root of pack_directory
     - name: Create pack.mcmeta
-      run: echo '{"pack":{"description":"AIT Resources.","pack_format":71}}' > ./build/resources/main/pack.mcmeta
+      run: echo '{"pack":{"description":"AIT Resources.","pack_format":15}}' > ./build/resources/main/pack.mcmeta
 
     - name: Run PackSquash
-      uses: drtheodor/PackSquash-action@9df4689ee0fdb105de4d16ee9fb319fbbd81ec28
+      uses: ComunidadAylas/PackSquash-action@v4
       with:
         packsquash_version: latest
-        quiet_logs: true
         options: |
           pack_directory = './build/resources/main/'
           output_file_path = '/tmp/pack.zip'
