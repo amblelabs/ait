@@ -5,24 +5,14 @@
   },
   "inputs": [
     {
-      "item": "ait:hyperion_core_shaft",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:cable_block",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:zeiton_shard",
+      "item": "minecraft:quartz",
       "maxCount": 2,
-      "minCount": 1
+      "minCount": 2
     },
     {
-      "item": "minecraft:redstone",
-      "maxCount": 5,
-      "minCount": 4
+      "item": "minecraft:green_dye",
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }

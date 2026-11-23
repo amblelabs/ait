@@ -5,39 +5,24 @@
   },
   "inputs": [
     {
-      "item": "minecraft:obsidian",
+      "item": "minecraft:copper_ingot",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:gold_ingot",
       "maxCount": 1,
       "minCount": 1
+    },
+    {
+      "item": "minecraft:cobbled_deepslate",
+      "maxCount": 2,
+      "minCount": 2
     },
     {
       "item": "ait:data_mercurial_link",
       "maxCount": 1,
       "minCount": 1
-    },
-    {
-      "item": "ait:hyperion_core_shaft",
-      "maxCount": 2,
-      "minCount": 1
-    },
-    {
-      "item": "minecraft:diamond",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "minecraft:redstone",
-      "maxCount": 4,
-      "minCount": 2
-    },
-    {
-      "item": "ait:cable_block",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 12,
-      "minCount": 6
     }
   ]
 }

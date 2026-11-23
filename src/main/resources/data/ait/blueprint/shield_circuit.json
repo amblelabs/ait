@@ -15,28 +15,18 @@
       "minCount": 1
     },
     {
-      "item": "ait:zeiton_block",
-      "maxCount": 6,
-      "minCount": 4
-    },
-    {
       "item": "minecraft:iron_ingot",
-      "maxCount": 13,
-      "minCount": 9
+      "maxCount": 3,
+      "minCount": 3
     },
     {
-      "item": "minecraft:crying_obsidian",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:transwarp_resonator",
-      "maxCount": 1,
-      "minCount": 1
+      "item": "minecraft:redstone",
+      "maxCount": 3,
+      "minCount": 3
     },
     {
       "item": "minecraft:amethyst_shard",
-      "maxCount": 2,
+      "maxCount": 1,
       "minCount": 1
     }
   ]

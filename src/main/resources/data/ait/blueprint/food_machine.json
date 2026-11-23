@@ -5,14 +5,9 @@
   },
   "inputs": [
     {
-      "item": "minecraft:redstone",
-      "maxCount": 2,
-      "minCount": 2
-    },
-    {
-      "item": "minecraft:stone_button",
-      "maxCount": 1,
-      "minCount": 1
+      "item": "minecraft:smooth_stone",
+      "maxCount": 3,
+      "minCount": 3
     },
     {
       "item": "minecraft:chest",
@@ -20,14 +15,14 @@
       "minCount": 1
     },
     {
-      "item": "ait:plasmic_material",
-      "maxCount": 2,
-      "minCount": 2
+      "item": "minecraft:stone_button",
+      "maxCount": 1,
+      "minCount": 1
     },
     {
-      "item": "minecraft:light_gray_concrete",
-      "maxCount": 3,
-      "minCount": 3
+      "item": "minecraft:redstone",
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }
