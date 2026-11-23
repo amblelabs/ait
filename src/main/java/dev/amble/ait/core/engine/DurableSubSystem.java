@@ -65,7 +65,7 @@ public abstract class DurableSubSystem extends SubSystem {
         TardisEvents.SUBSYSTEM_REPAIR.invoker().onRepair(this);
     }
     protected int changeFrequency() {
-        return 20;
+        return 30;
     }
     protected abstract float cost();
     protected abstract boolean shouldDurabilityChange();

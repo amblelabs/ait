@@ -6,28 +6,23 @@
   "inputs": [
     {
       "item": "ait:cable_block",
-      "maxCount": 3,
-      "minCount": 1
-    },
-    {
-      "item": "minecraft:copper_ingot",
-      "maxCount": 6,
-      "minCount": 4
-    },
-    {
-      "item": "minecraft:ender_pearl",
-      "maxCount": 4,
-      "minCount": 2
-    },
-    {
-      "item": "ait:artron_fluid_link",
       "maxCount": 1,
       "minCount": 1
     },
     {
-    "item": "ait:orthogonal_engine_filter",
-    "maxCount": 1,
-    "minCount": 1
+      "item": "minecraft:iron_ingot",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:redstone",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "maxCount": 1,
+      "minCount": 1
     },
     {
       "item": "ait:vortex_fluid_link",
@@ -36,13 +31,8 @@
     },
     {
       "item": "ait:zeiton_shard",
-      "maxCount": 8,
-      "minCount": 5
-    },
-    {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 9,
-      "minCount": 5
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }

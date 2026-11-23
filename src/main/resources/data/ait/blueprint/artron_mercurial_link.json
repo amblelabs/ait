@@ -5,18 +5,13 @@
   },
   "inputs": [
     {
-      "item": "ait:cable_block",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "minecraft:redstone",
-      "maxCount": 8,
-      "minCount": 5
-    },
-    {
-      "item": "ait:artron_collector",
+      "item": "minecraft:quartz",
       "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "maxCount": 1,
       "minCount": 1
     }
   ]

@@ -10,17 +10,7 @@
       "minCount": 1
     },
     {
-      "item": "ait:artron_mercurial_link",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:charged_zeiton_crystal",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:cable_block",
+      "item": "ait:hyperion_core_shaft",
       "maxCount": 1,
       "minCount": 1
     },
@@ -30,14 +20,9 @@
       "minCount": 1
     },
     {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 9,
-      "minCount": 5
-    },
-    {
-      "item": "ait:hyperion_core_shaft",
-      "maxCount": 1,
-      "minCount": 1
+      "item": "minecraft:bone_meal",
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }

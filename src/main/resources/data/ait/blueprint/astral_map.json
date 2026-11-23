@@ -5,16 +5,6 @@
   },
   "inputs": [
     {
-      "item": "minecraft:quartz",
-      "maxCount": 5,
-      "minCount": 3
-    },
-    {
-      "item": "ait:data_fluid_link",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
       "item": "minecraft:compass",
       "maxCount": 1,
       "minCount": 1
@@ -25,24 +15,14 @@
       "minCount": 1
     },
     {
-      "item": "minecraft:diamond",
-      "maxCount": 4,
-      "minCount": 2
-    },
-    {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 7,
-      "minCount": 3
-    },
-    {
-      "item": "minecraft:blaze_powder",
-      "maxCount": 5,
-      "minCount": 3
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
     },
     {
       "item": "minecraft:ender_eye",
-      "maxCount": 10,
-      "minCount": 10
+      "maxCount": 1,
+      "minCount": 1
     }
   ]
 }

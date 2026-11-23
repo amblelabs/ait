@@ -5,19 +5,19 @@
   },
   "inputs": [
     {
-      "item": "ait:cable_block",
-      "maxCount": 1,
-      "minCount": 1
+      "item": "minecraft:copper_ingot",
+      "maxCount": 2,
+      "minCount": 2
     },
     {
-      "item": "minecraft:ender_pearl",
-      "maxCount": 1,
-      "minCount": 1
+      "item": "minecraft:lapis_lazuli",
+      "maxCount": 2,
+      "minCount": 2
     },
     {
-      "item": "ait:zeiton_shard",
-      "maxCount": 7,
-      "minCount": 5
+      "item": "ait:zeiton_dust",
+      "maxCount": 1,
+      "minCount": 1
     }
   ]
 }

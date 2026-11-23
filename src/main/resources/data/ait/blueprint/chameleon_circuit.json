@@ -5,37 +5,22 @@
   },
   "inputs": [
     {
-      "item": "ait:zeiton_shard",
-      "maxCount": 3,
-      "minCount": 2
-    },
-    {
-      "item": "ait:photon_accelerator",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
       "item": "ait:cable_block",
       "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "minecraft:redstone",
-      "maxCount": 4,
+      "item": "minecraft:copper_ingot",
+      "maxCount": 2,
       "minCount": 2
     },
     {
-      "item": "minecraft:copper_ingot",
-      "maxCount": 3,
-      "minCount": 1
-    },
-    {
-      "item": "ait:data_fluid_link",
+      "item": "minecraft:gold_ingot",
       "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "ait:data_mercurial_link",
+      "item": "ait:data_fluid_link",
       "maxCount": 1,
       "minCount": 1
     }

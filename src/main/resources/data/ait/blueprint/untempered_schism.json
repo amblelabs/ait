@@ -6,48 +6,28 @@
   "inputs": [
     {
       "item": "ait:cable_block",
-      "maxCount": 6,
-      "minCount": 3
-    },
-    {
-      "item": "minecraft:gold_ingot",
-      "maxCount": 27,
-      "minCount": 15
-    },
-    {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 8,
-      "minCount": 5
+      "maxCount": 2,
+      "minCount": 2
     },
     {
       "item": "ait:artron_collector",
-      "maxCount": 2,
+      "maxCount": 1,
       "minCount": 1
     },
     {
-      "item": "ait:artron_collector_block",
-      "maxCount": 5,
-      "minCount": 2
-    },
-    {
-      "item": "ait:zeiton_shard",
-      "maxCount": 8,
-      "minCount": 5
-    },
-    {
-      "item": "minecraft:iron_block",
-      "maxCount": 3,
-      "minCount": 2
-    },
-    {
-      "item": "minecraft:gold_block",
-      "maxCount": 6,
+      "item": "minecraft:gold_ingot",
+      "maxCount": 4,
       "minCount": 4
     },
     {
-      "item": "ait:artron_mercurial_link",
-      "maxCount": 3,
-      "minCount": 1
+      "item": "minecraft:terracotta",
+      "maxCount": 4,
+      "minCount": 4
+    },
+    {
+      "item": "ait:compact_zeiton",
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }

@@ -5,29 +5,24 @@
   },
   "inputs": [
     {
-      "item": "ait:hyperion_core_shaft",
-      "maxCount": 3,
-      "minCount": 2
-    },
-    {
-      "item": "minecraft:iron_ingot",
-      "maxCount": 6,
-      "minCount": 4
-    },
-    {
-      "item": "ait:artron_mercurial_link",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
-      "item": "ait:zeiton_dust",
-      "maxCount": 5,
-      "minCount": 2
-    },
-    {
       "item": "ait:data_fluid_link",
       "maxCount": 1,
       "minCount": 1
+    },
+    {
+      "item": "ait:hyperion_core_shaft",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:gold_ingot",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:light_blue_stained_glass_pane",
+      "maxCount": 2,
+      "minCount": 2
     }
   ]
 }
