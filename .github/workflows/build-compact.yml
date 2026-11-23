@@ -36,6 +36,9 @@ jobs:
         ./gradlew runDatagen
         ./gradlew build
 
+    - name: Create pack.mcmeta
+      run: echo '{"pack":{"description":"AIT Resources.","pack_format":15}}' > ./build/resources/main/pack.mcmeta
+
     - name: Run PackSquash
       uses: ComunidadAylas/PackSquash-action@v4
       with:
