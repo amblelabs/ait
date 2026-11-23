@@ -1,0 +1,1 @@
+- fix: minimize the release | by [@drtheodor](https://github.com/drtheodor)
