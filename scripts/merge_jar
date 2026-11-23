@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script to find all .jar files in a folder, unzip each, overlay another zip,
+# and repackage as a new jar, preserving each original manifest.
 set -e
 
 if [ $# -lt 2 ]; then
@@ -20,9 +22,9 @@ if [ ! -f "$OTHER_ZIP" ]; then
     exit 1
 fi
 
-# Collect all jars, excluding -sources.jar
+# Collect all jars (no exclusion)
 mapfile -t -d '' JAR_FILES < <(
-    find "$FOLDER_PATH" -maxdepth 1 -name "*.jar" -type f ! -name "*-sources.jar" -print0
+    find "$FOLDER_PATH" -maxdepth 1 -name "*.jar" -type f -print0
 )
 
 if [ ${#JAR_FILES[@]} -eq 0 ]; then
@@ -44,17 +46,36 @@ for JAR_FILE in "${JAR_FILES[@]}"; do
     echo "Unzipping $JAR_FILE to $WORK_DIR"
     unzip -q "$JAR_FILE" -d "$WORK_DIR/"
 
+    # Save original manifest (if any) so the overlay cannot clobber it
+    MANIFEST_BACKUP=""
+    if [ -f "$WORK_DIR/META-INF/MANIFEST.MF" ]; then
+        MANIFEST_BACKUP=$(mktemp)
+        cp "$WORK_DIR/META-INF/MANIFEST.MF" "$MANIFEST_BACKUP"
+        echo "Backed up original manifest"
+    fi
+
     echo "Unzipping $OTHER_ZIP to $WORK_DIR"
     unzip -qo "$OTHER_ZIP" -d "$WORK_DIR/"
 
-    rm -f "$JAR_FILE"
+    # Restore original manifest
+    if [ -n "$MANIFEST_BACKUP" ]; then
+        mkdir -p "$WORK_DIR/META-INF"
+        cp "$MANIFEST_BACKUP" "$WORK_DIR/META-INF/MANIFEST.MF"
+        rm -f "$MANIFEST_BACKUP"
+        echo "Restored original manifest"
+    fi
 
-    echo "Creating new jar file: $JAR_FILE"
-    jar --create --file="$JAR_FILE" -C "$WORK_DIR" .
+    # Resolve absolute path before deleting the original
+    JAR_FILE_ABS=$(realpath "$JAR_FILE")
+    rm -f "$JAR_FILE_ABS"
+
+    echo "Creating new jar file: $JAR_FILE_ABS"
+    # Use zip (not jar) so the manifest is preserved byte-for-byte.
+    ( cd "$WORK_DIR" && zip -qr "$JAR_FILE_ABS" . )
 
     rm -rf "$WORK_DIR"
 
-    echo "Done: $JAR_FILE"
+    echo "Done: $JAR_FILE_ABS"
 done
 
 echo "All jars processed successfully!"
