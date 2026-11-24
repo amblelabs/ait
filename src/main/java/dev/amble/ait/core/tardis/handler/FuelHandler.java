@@ -20,7 +20,6 @@ import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
