@@ -1,1 +1,2 @@
 - chore: rebalance bp's again | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2297](https://github.com/amblelabs/ait/pull/2297))
+- chore: made compact zeiton cheaper | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2309](https://github.com/amblelabs/ait/pull/2309))
