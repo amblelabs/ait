@@ -51,7 +51,6 @@ public class ListCommand {
         source.sendMessage(Text.translatable("command.ait.list.tardises"));
 
         String[] parts = args.split(":");
-a
         String type = parts[0];
 
         try {
