@@ -19,6 +19,7 @@ import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -175,16 +176,19 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.canQueue())
             return;
 
+        ServerTardis tardis = tardis.asServer();
+
         if (tardis.fuel().getCurrentFuel() < (MIN_FUEL_COST * tardis.travel().instability())) {
-            tardis.asServer().world().getPlayers().forEach(player -> player.sendMessage(
-                    Text.translatable("tardis.message.interiorchange.not_enough_fuel").formatted(Formatting.RED),
-                    true));
+            if (tardis.hasWorld())
+                tardis.world().getPlayers().forEach(player -> player.sendMessage(
+                        Text.translatable("tardis.message.interiorchange.not_enough_fuel").formatted(Formatting.RED),
+                        true));
 
             return;
         }
 
-        if (tardis.subsystems().isEnabled()) {
-            tardis.asServer().world().getPlayers().forEach(player -> {
+        if (tardis.subsystems().isEnabled() && tardis.hasWorld()) {
+            tardis.world().getPlayers().forEach(player -> {
                 int count = 0;
 
                 for (SubSystem subSystem : tardis.subsystems()) {
@@ -198,7 +202,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             });
         }
 
-        AITMod.LOGGER.info("Queueing interior change for {} to {}", this.tardis, schema);
+        AITMod.LOGGER.info("Queueing interior change for {} to {}", tardis, schema);
 
         this.queuedInterior.set(schema.id());
         this.queued.set(true);
