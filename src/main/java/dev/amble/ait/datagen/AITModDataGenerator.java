@@ -1277,6 +1277,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Death
         provider.addTranslation("death.attack.tardis_squash", "%1$s got squashed by a TARDIS!");
+        provider.addTranslation("death.attack.tardis_squash.player", "%1$s got squashed by a TARDIS with the help of %2$s!");
         provider.addTranslation("death.attack.space_suffocation", "%1$s got blown up due to lack of Oxygen!");
 
         // Sonic Scanning Mode
