@@ -51,7 +51,6 @@ public class ListCommand {
         source.sendMessage(Text.translatable("command.ait.list.tardises"));
 
         String[] parts = args.split(":");
-
         String type = parts[0];
 
         try {
@@ -60,7 +59,7 @@ public class ListCommand {
             if (func == null)
                 throw new IllegalArgumentException();
 
-            Pattern value = Pattern.compile(parts[1]);
+            Pattern value = Pattern.compile(parts[1], Pattern.CASE_INSENSITIVE);
 
             ServerTardisManager.getInstance().forEach(tardis -> {
                 boolean matches = value.matcher(func.apply(tardis)).matches();
