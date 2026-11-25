@@ -1,3 +1,4 @@
 - chore: rebalance bp's again | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2297](https://github.com/amblelabs/ait/pull/2297))
 - chore: made compact zeiton cheaper | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2309](https://github.com/amblelabs/ait/pull/2309))
 - fix: stackoverflow on queued interior after a restart | by [@drtheodor](https://github.com/drtheodor) ([#2321](https://github.com/amblelabs/ait/pull/2321))
+- fix: make /ait list matching case insensitive | by [@drtheodor](https://github.com/drtheodor) ([#2323](https://github.com/amblelabs/ait/pull/2323))
