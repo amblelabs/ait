@@ -176,7 +176,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.canQueue())
             return;
 
-        ServerTardis tardis = tardis.asServer();
+        ServerTardis tardis = this.tardis.asServer();
 
         if (tardis.fuel().getCurrentFuel() < (MIN_FUEL_COST * tardis.travel().instability())) {
             if (tardis.hasWorld())
