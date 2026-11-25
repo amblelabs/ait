@@ -19,6 +19,7 @@ import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
