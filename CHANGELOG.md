@@ -3,3 +3,4 @@
 - fix: stackoverflow on queued interior after a restart | by [@drtheodor](https://github.com/drtheodor) ([#2321](https://github.com/amblelabs/ait/pull/2321))
 - fix: make /ait list matching case insensitive | by [@drtheodor](https://github.com/drtheodor) ([#2323](https://github.com/amblelabs/ait/pull/2323))
 - fix: remove additional thud from landing sounds | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#2326](https://github.com/amblelabs/ait/pull/2326))
+- fix: fixed missing exclusive exterior translation | by [@vmbbi](https://github.com/vmbbi) ([#2324](https://github.com/amblelabs/ait/pull/2324))
