@@ -7,7 +7,7 @@ import java.awt.datatransfer.StringSelection;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.amble.ait.client.screens.widget.AITLogoDrawer;
-import dev.amble.ait.core.devteam.DevTeam;
+import dev.amble.ait.core.devteam.ClientDevTeam;
 import dev.amble.verification.BetaVerification;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +25,7 @@ import net.minecraft.text.Text;
 public abstract class TitleScreenMixin extends Screen {
 
     @Shadow @Final @Mutable private LogoDrawer logoDrawer;
-    @Unique private static final Tooltip VERIFY_TOOLTIP = Tooltip.of(DevTeam.Verify.TEXT_TOOLTIP);
+    @Unique private static final Tooltip VERIFY_TOOLTIP = Tooltip.of(ClientDevTeam.Verify.TEXT_TOOLTIP);
 
     protected TitleScreenMixin(Text title) {
         super(title);
@@ -43,25 +43,25 @@ public abstract class TitleScreenMixin extends Screen {
 
     @WrapOperation(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;", ordinal = 0))
     private ButtonWidget.Builder initWidgetsNormal(Text message, ButtonWidget.PressAction onPress, Operation<ButtonWidget.Builder> original) {
-        if (!DevTeam.VERIFY.isLocked()) return original.call(message, onPress);
+        if (!ClientDevTeam.VERIFY.isLocked()) return original.call(message, onPress);
 
-        return new ButtonWidget.Builder(DevTeam.Verify.TEXT_PLAY, button -> {
+        return new ButtonWidget.Builder(ClientDevTeam.Verify.TEXT_PLAY, button -> {
             if (BetaVerification.isAttemptingAuth()) {
                 // TODO: maybe use whatever minecraft is using? if it isn't using this ig?
-                StringSelection stringSelection = new StringSelection(DevTeam.VERIFY.getAuthUrl());
+                StringSelection stringSelection = new StringSelection(ClientDevTeam.VERIFY.getAuthUrl());
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(stringSelection, null);
                 return;
             }
 
-            if (DevTeam.VERIFY.isLocked()) {
-                button.setMessage(DevTeam.Verify.TEXT_BROWSER);
-                DevTeam.VERIFY.startAndWaitForToken(valid -> {
+            if (ClientDevTeam.VERIFY.isLocked()) {
+                button.setMessage(ClientDevTeam.Verify.TEXT_BROWSER);
+                ClientDevTeam.VERIFY.startAndWaitForToken(valid -> {
                     if (valid) {
                         button.setTooltip(null);
                         button.setMessage(message);
                     } else {
-                        button.setMessage(DevTeam.Verify.TEXT_PLAY);
+                        button.setMessage(ClientDevTeam.Verify.TEXT_PLAY);
                     }
                 });
 
