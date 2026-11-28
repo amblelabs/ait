@@ -1,6 +1,6 @@
 package dev.amble.ait.client.screens.widget;
 
-import dev.amble.ait.core.devteam.DevTeam;
+import dev.amble.ait.core.devteam.ClientDevTeam;
 import dev.amble.ait.mixin.client.title.LogoDrawerAccessor;
 import dev.amble.verification.BetaVerification;
 
@@ -33,8 +33,8 @@ public class AITLogoDrawer extends LogoDrawer {
 
         context.setShaderColor(1, 1, 1, 1);
 
-        if (DevTeam.VERIFY.getBuildType() != BetaVerification.BuildType.RELEASE) {
-            String warningMessage = "⚠ WARNING! You are using an experimental version (" + DevTeam.VERIFY.getBranch() + "), please be cautious when testing!";
+        if (ClientDevTeam.VERIFY.getBuildType() != BetaVerification.BuildType.RELEASE) {
+            String warningMessage = "⚠ WARNING! You are using an experimental version (" + ClientDevTeam.VERIFY.getBranch() + "), please be cautious when testing!";
 
             int textWidth = this.textRenderer.getWidth(warningMessage);
 
