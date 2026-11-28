@@ -127,6 +127,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('#', AITBlocks.TARDIS_CORAL_BLOCK)
                     .criterion(hasItem(AITBlocks.TARDIS_CORAL_BLOCK), conditionsFromItem(AITBlocks.TARDIS_CORAL_BLOCK)));
 
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, AITBlocks.TARDIS_CORAL_WALL, 6)
+                    .pattern("###")
+                    .pattern("###")
+                    .input('#', AITBlocks.TARDIS_CORAL_BLOCK)
+                    .criterion(hasItem(AITBlocks.TARDIS_CORAL_BLOCK), conditionsFromItem(AITBlocks.TARDIS_CORAL_BLOCK)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, AITBlocks.TARDIS_CORAL_FENCE, 6)
+                    .pattern("#X#")
+                    .pattern("#X#")
+                    .input('#', AITBlocks.TARDIS_CORAL_BLOCK)
+                    .input('X', Items.STICK)
+                    .criterion(hasItem(AITBlocks.TARDIS_CORAL_BLOCK), conditionsFromItem(AITBlocks.TARDIS_CORAL_BLOCK)));
+
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITBlocks.TARDIS_CORAL_STAIRS, 4)
                     .pattern("#  ")
                     .pattern("## ")
